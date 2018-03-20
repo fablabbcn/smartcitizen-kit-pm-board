@@ -1,6 +1,6 @@
 # Smartcitizen PM Board
 
-![](https://i.imgur.com/h6PsfX2.jpg)
+<img src="https://i.imgur.com/h6PsfX2.jpg" width="300">
 
 Expansion board designed to expand the functionality of the Smartcitizen Kit, it has:
 

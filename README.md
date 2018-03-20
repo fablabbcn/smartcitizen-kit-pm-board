@@ -10,3 +10,4 @@ Expansion board designed to expand the functionality of the Smartcitizen Kit, it
 * Two grove ADC.
 * In/out groove connectors to chain multiple boards to a Smartcitizen kit.
 
+Some dev [notes](https://hackmd.io/WUZ8Pk7URkmGuLFe-FpaHQ#)

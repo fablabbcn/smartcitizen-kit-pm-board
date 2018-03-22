@@ -19,7 +19,8 @@ Arduino already provide a binary compiled file [samd21_sam_ba.bin](https://githu
 
 	![](images/2.png)
 
-* Connect the board via **USB**.
+* Connect the board via **SCK AUX IN** grove connector with a **3.3v** power source.  
+Another board from the same type can be used connecting it to USB power and using the **UART TX/RX** to provide the 3.3v to the tested board.
 
 	![](images/1.png)
 

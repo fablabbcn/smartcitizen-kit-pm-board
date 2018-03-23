@@ -8,7 +8,7 @@ Arduino already provide a binary compiled file [samd21_sam_ba.bin](https://githu
 ## 2. Build and upload the _Test Firmware_
 
 * Install [Platformio](http://platformio.org/).
-* Get the code: `git clone https://github.com/fablabbcn/smartcitizen-kit-pm-board)`
+* Get the code: `git clone https://github.com/fablabbcn/smartcitizen-kit-pm-board`
 * Connect the PM board via _USB_
 * Go to the _test_firmware_ folder: `cd smartcitizen-kit-pm-board/test_firmware`
 * Build and upload the test firmware: `platformio run -t upload`

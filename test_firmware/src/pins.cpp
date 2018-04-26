@@ -39,7 +39,7 @@ void setupPins() {
 	pinMode(PWM_PMS_A, INPUT);
 
 	pinMode(SW_PMSXA, OUTPUT);
-	digitalWrite(SW_PMSXA, LOW);		// LOW: Turn on power to PMS
+	digitalWrite(SW_PMSXA, HIGH);		// HIGH: Turn on power to PMS
 
 	SerialPMA_A.begin(9600);
 	pinPeripheral(RX_A, PIO_SERCOM_ALT);
@@ -56,7 +56,7 @@ void setupPins() {
 	pinMode(PWM_PMS_B, INPUT);
 
 	pinMode(SW_PMSXB, OUTPUT);
-	digitalWrite(SW_PMSXB, LOW);		// LOW: Turn on power to PMS
+	digitalWrite(SW_PMSXB, HIGH);		// HIGH: Turn on power to PMS
 
 	SerialPMA_B.begin(9600);
 

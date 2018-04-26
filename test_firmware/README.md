@@ -26,7 +26,7 @@ Another board from the same type can be used connecting it to USB power and usin
 
 * The led will **cycle** between **red/green/blue** colors. ![](images/red.png) ![](images/green.png) ![](images/blue.png)
 * The led will be **red** while searching for PM sensors on connectors _PMS_A_ or _PMS_B_ :red_circle:
-* When the PM sensor is found the led will change to **yellow** ![](images/yellow.png)
+* When the PM sensor is found the led will change to **pink** ![](images/pink.png)
 * Change the PM sensor from connector **A** to connector **B**
 
     ![](images/3.png)

@@ -4,7 +4,6 @@
 
 #include <pins.h>
 
-
 void ledCycle() {
 
 	SerialUSB.print("Cycling led colors... ");
@@ -67,7 +66,7 @@ void searchPM() {
 				SerialUSB.println();
 				if (numA == required) {
 					SerialUSB.println("Founded PM in connector A");
-					analogWrite(pinGREEN, 180);
+					analogWrite(pinBLUE, 80);
 					A = true;
 					if (!B) SerialUSB.println("To complete the test please connect a PM sensor on connector B");
 					else break;
@@ -87,7 +86,7 @@ void searchPM() {
 				SerialUSB.println();
 				if (numB == required) {
 					SerialUSB.println("Founded PM in connector B");
-					analogWrite(pinGREEN, 180);
+					analogWrite(pinBLUE, 80);
 					B = true;
 					if (!A) SerialUSB.println("To complete the test please connect a PM sensor on connector A");
 					else break;

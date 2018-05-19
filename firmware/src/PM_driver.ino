@@ -175,6 +175,11 @@ void requestEvent()
 				for (uint8_t i=0; i<6; i++) {
 					Wire.write(pmB.values[i]);
 				}
+			} else {
+				// No PM active, send 0 for now TODO error code to report that no device is available
+				for (uint8_t i=0; i<6; i++) {
+					Wire.write(0);
+				}
 			}
 
 			break;

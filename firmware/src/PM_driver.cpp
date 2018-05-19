@@ -44,6 +44,9 @@ bool PMsensor::update() {
 				pm1 = (buff[3]<<8) + buff[4];
 				pm25 = (buff[5]<<8) + buff[6];
 				pm10 = (buff[7]<<8) + buff[8];
+
+				lastReading = millis();
+
 				return true;
 			}
 		}

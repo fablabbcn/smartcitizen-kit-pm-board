@@ -5,7 +5,13 @@
 #include <pins.h>
 
 
-enum PMcommands { START, GET_PMA, GET_PMB, STOP};
+enum PMcommands { 
+	PM_START, 		// Start both PMS
+	GET_PMA, 	// Get values for PMS in slot A
+	GET_PMB, 	// Get values for PMS in slot A 
+	GET_PM_AVG, 	// Get values for both PMS averaged
+	PM_STOP 		// Stop both PMS
+};
 
 class PMsensor {
 public:
@@ -23,14 +29,16 @@ public:
 	void reset();
 	bool update();
 
-	uint8_t values[6];		// 6 bytes 0:1->pm1, 2:3->pm25, 4:5->pm10
+	uint32_t lastReading = 0;
 
+	uint8_t values[6] = {0,0,0,0,0,0};	// 6 bytes 0:1->pm1, 2:3->pm25, 4:5->pm10
 
-private:
 	// Readings
 	uint16_t pm1;
 	uint16_t pm25;
 	uint16_t pm10;
+
+private:
 
 	HardwareSerial * _pmSerial;
 	uint8_t _pinPOWER;

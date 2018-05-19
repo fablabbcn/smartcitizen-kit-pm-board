@@ -9,7 +9,7 @@
 // Hardware Serial UART PM-A
 Uart SerialPMA_A (&sercom2, RX_A, TX_A, SERCOM_RX_PAD_1, UART_TX_PAD_0);
 void SERCOM2_Handler() {
- 	SerialPMA_A.IrqHandler();
+	SerialPMA_A.IrqHandler();
 }
 
 // Hardware Serial UART PM-B (already setup by arduino core as Serial1 and renamed in headers file)
@@ -17,14 +17,16 @@ void SERCOM2_Handler() {
 // Hardware Serial UART GroveUART
 Uart SerialGrove (&sercom1, RX0, TX0, SERCOM_RX_PAD_3, UART_TX_PAD_2);
 void SERCOM1_Handler() {
- 	SerialGrove.IrqHandler();
+	SerialGrove.IrqHandler();
 }
 
 PMsensor pmA(&SerialPMA_A, POWER_PMS_A, ENABLE_PMS_A, RESET_PMS_A);
 PMsensor pmB(&SerialPMA_B, POWER_PMS_B, ENABLE_PMS_B, RESET_PMS_B);
 
 uint8_t wichCommand = GET_PMA;
-void setup() {
+
+void setup()
+{
 
 	// RGB led
 	pinMode(pinRED, OUTPUT);
@@ -81,53 +83,107 @@ void setup() {
 	Wire.onRequest(requestEvent);
 
 
-	delay(5000);
-	pmA.begin();
-	delay(500);
-	pmB.begin();
 }
-void receiveEvent(int howMany) {
+void receiveEvent(int howMany)
+{
 
 	byte command = 99;
 	if (Wire.available()) command = Wire.read();
 
 	switch(command) {
 
-		case START: {
-			pmA.begin();
-			pmB.begin();
-			break;
-
-		} case STOP: {
-			pmA.stop();
-			pmB.stop();
-			break;
-
-		} case GET_PMA: 
-		case GET_PMB: {
-
-			wichCommand = command; 
-			break;
+		case PM_START:
+		{
+				pmA.begin();
+				delay(2000);
+				pmB.begin();
+				break;
+		}
+		case PM_STOP:
+		{
+				pmA.stop();
+				pmB.stop();
+				break;
+		}
+		case GET_PM_AVG:
+		case GET_PMA:
+		case GET_PMB:
+		{
+				wichCommand = command;
+				break;
 		}
 	}
-	bool t = digitalRead(pinBLUE);
-	digitalWrite(pinBLUE, !t);
+	/* bool t = digitalRead(pinBLUE); */
+	/* digitalWrite(pinBLUE, !t); */
 }
-void requestEvent() {
-	if (wichCommand == GET_PMA) {
-		for (uint8_t i=0; i<6; i++) {
-			Wire.write(pmA.values[i]);
-		}
+void requestEvent()
+{
+	switch (wichCommand)
+{
+
+	case GET_PMA:
+	{
+			for (uint8_t i=0; i<6; i++) {
+				Wire.write(pmA.values[i]);
+			}
+			break;
 	}
-	else if (wichCommand == GET_PMB) {
-		for (uint8_t i=0; i<6; i++) {
-			Wire.write(pmB.values[i]);
-		}
+	case GET_PMB:
+	{
+			for (uint8_t i=0; i<6; i++) {
+				Wire.write(pmB.values[i]);
+			}
+			break;
+	}
+	case GET_PM_AVG:
+	{
+			bool pmAactive = false;
+			bool pmBactive = false;
+			uint8_t toSendValues[6] = {0,0,0,0,0,0};	// 6 bytes 0:1->pm1, 2:3->pm25, 4:5->pm10
+
+
+			// Check if both are active
+			if (millis() - pmA.lastReading < 10000) pmAactive = true;
+			if (millis() - pmB.lastReading < 10000) pmBactive = true;
+
+
+			// Send values 	(6 bytes 0:1->pm1, 2:3->pm25, 4:5->pm10)
+			// Average both readings
+			if (pmAactive && pmBactive) {
+
+				uint16_t bothPm1 = (pmA.pm1 + pmB.pm1) / 2;
+				uint16_t bothPm25 = (pmA.pm25 + pmB.pm25) / 2;
+				uint16_t bothPm10 = (pmA.pm10 + pmB.pm10) / 2;
+
+				toSendValues[0] = bothPm1 >> 8;
+				toSendValues[1] = bothPm1 & 0x00FF;
+				toSendValues[2] = bothPm25 >> 8;
+				toSendValues[3] = bothPm25 & 0x00FF;
+				toSendValues[4] = bothPm10 >> 8;
+				toSendValues[5] = bothPm10 & 0x00FF;
+
+				for (uint8_t i=0; i<6; i++) {
+					Wire.write(toSendValues[i]);
+				}
+
+				// Otherwise send only the active one	
+			} else if (pmAactive) {
+				for (uint8_t i=0; i<6; i++) {
+					Wire.write(pmA.values[i]);
+				}
+			} else if (pmBactive) {
+				for (uint8_t i=0; i<6; i++) {
+					Wire.write(pmB.values[i]);
+				}
+			}
+
+			break;
 	}
 }
+}
 
-void loop() {
-
+void loop()
+{
 	if (millis() % 1000 == 0) {
 		pmA.update();
 		pmB.update();

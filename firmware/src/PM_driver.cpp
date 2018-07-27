@@ -2,6 +2,8 @@
 
 bool PMsensor::begin() {
 
+	if (started) return true;
+
 	pinMode(_pinENABLE, OUTPUT);
 	digitalWrite(_pinENABLE, HIGH); 			// HIGH: Enable PMS
 
@@ -11,6 +13,8 @@ bool PMsensor::begin() {
 	pinMode(_pinRESET, OUTPUT);
 	digitalWrite(_pinRESET, HIGH);		// pull this pin down to reset module
 
+	started = true;
+
 	return true;
 }
 bool PMsensor::stop() {
@@ -18,6 +22,8 @@ bool PMsensor::stop() {
 	digitalWrite(_pinENABLE, LOW);
 	digitalWrite(_pinPOWER, LOW);
 	_pmSerial->end();
+
+	started = false;
 
 	return true;
 }

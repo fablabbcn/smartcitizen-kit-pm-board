@@ -1,6 +1,6 @@
 # Smart Citizen Kit 2.0 PM Board [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
 
-![SCK 2.0 PM Board](https://cdn.rawgit.com/fablabbcn/smartcitizen-kit-pm-board/master/img-1.jpg)
+![alt text](https://cdn.rawgit.com/fablabbcn/smartcitizen-kit-gases-pro-board/f2834941/gases_pro_board.png "PM and Aux Board")
 
 Expansion board designed to expand the functionality of the Smart Citizen Kit 2.0, it has:
 
@@ -9,8 +9,6 @@ Expansion board designed to expand the functionality of the Smart Citizen Kit 2.
 * One grove GPIO.
 * Two grove ADC.
 * In/out groove connectors to chain multiple boards to a Smart Citizen Kit 2.0.
-
-<img src="https://cdn.rawgit.com/fablabbcn/smartcitizen-kit-pm-board/master/img-2.jpg" alt="SCK 2.0 PM Board" width="300">
 
 Some dev [notes](https://hackmd.io/WUZ8Pk7URkmGuLFe-FpaHQ#)
 
@@ -53,3 +51,7 @@ All the software unless stated is released under [GNU GPL v3.0](https://github.c
 ## Credits
 
 Smart Citizen Team 2012-18
+
+## Funding
+
+This work has received funding from the European Union's Horizon 2020 research and innovation program under the grant agreement [No. 689954](https://cordis.europa.eu/project/rcn/202639_en.html)

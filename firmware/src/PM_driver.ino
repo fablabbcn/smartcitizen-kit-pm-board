@@ -47,10 +47,6 @@ void setup()
 
 	pinMode(PWM_PMS_A, INPUT);
 
-	SerialPMA_A.begin(9600);
-	pinPeripheral(RX_A, PIO_SERCOM_ALT);	// PMA_A serial port
-	pinPeripheral(TX_A, PIO_SERCOM_ALT);	// PMA_A serial port
-
 	// PM_B connector
 	pinMode(ENABLE_PMS_B, OUTPUT);
 	pinMode(POWER_PMS_B, OUTPUT);
@@ -60,8 +56,6 @@ void setup()
 	digitalWrite(RESET_PMS_B, HIGH);
 
 	pinMode(PWM_PMS_B, INPUT);
-
-	SerialPMA_B.begin(9600);
 
 	// ADC'S
 	pinMode(ADC0, INPUT);
@@ -82,7 +76,6 @@ void setup()
 	Wire.onReceive(receiveEvent);
 	Wire.onRequest(requestEvent);
 
-
 }
 void receiveEvent(int howMany)
 {
@@ -94,8 +87,14 @@ void receiveEvent(int howMany)
 
 		case PM_START:
 		{
+				SerialPMA_A.begin(9600);
+				pinPeripheral(RX_A, PIO_SERCOM_ALT);	// PMA_A serial port
+				pinPeripheral(TX_A, PIO_SERCOM_ALT);	// PMA_A serial port
 				pmA.begin();
+
 				delay(2000);
+
+				SerialPMA_B.begin(9600);
 				pmB.begin();
 				break;
 		}

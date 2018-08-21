@@ -45,6 +45,8 @@ private:
 	uint8_t _pinENABLE;
 	uint8_t _pinRESET;
 
+	bool started = false;
+
 	static const uint8_t buffLong = 23;
 	unsigned char buff[buffLong];
 };

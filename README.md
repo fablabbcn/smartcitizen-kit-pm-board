@@ -1,6 +1,6 @@
 # Smart Citizen Kit 2.0 PM Board [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
 
-![alt text](https://cdn.rawgit.com/fablabbcn/smartcitizen-kit-gases-pro-board/f2834941/gases_pro_board.png "PM and Aux Board")
+![alt text](https://cdn.rawgit.com/fablabbcn/smartcitizen-kit-pm-board/2530bf9b/pm_board.png "PM and Aux Board")
 
 Expansion board designed to expand the functionality of the Smart Citizen Kit 2.0, it has:
 

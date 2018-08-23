@@ -4,26 +4,33 @@
 #include <Wire.h>
 #include <pins.h>
 
+// Libraries for DallasTemp
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
-enum PMcommands { 
+
+enum PMcommands {
 	PM_START, 		// Start both PMS
-	GET_PMA, 	// Get values for PMS in slot A
-	GET_PMB, 	// Get values for PMS in slot A 
-	GET_PM_AVG, 	// Get values for both PMS averaged
-	PM_STOP 		// Stop both PMS
+	GET_PMA, 		// Get values for PMS in slot A
+	GET_PMB, 		// Get values for PMS in slot A
+	GET_PM_AVG, 		// Get values for both PMS averaged
+	PM_STOP, 		// Stop both PMS
+	DALLASTEMP_START,
+	DALLASTEMP_STOP,
+	GET_DALLASTEMP
 };
 
 class PMsensor {
 public:
 
-	// Constructor 
+	// Constructor
 	PMsensor(HardwareSerial *serial, uint8_t pinPOWER, uint8_t pinENABLE, uint8_t pinRESET) {
 		_pmSerial = serial;
 		_pinPOWER = pinPOWER;
 		_pinENABLE = pinENABLE;
 		_pinRESET = pinRESET;
 	}
-	
+
 	bool begin();
 	bool stop();
 	void reset();
@@ -49,4 +56,19 @@ private:
 
 	static const uint8_t buffLong = 23;
 	unsigned char buff[buffLong];
+};
+
+class Sck_DallasTemp {
+	public:
+		bool start();
+		bool stop();
+		bool getReading();
+
+		union u_reading {
+			byte b[4];
+			float fval;
+		} uRead;
+
+	private:
+		uint8_t _oneWireAddress[8];
 };

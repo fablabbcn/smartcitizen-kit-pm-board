@@ -1,6 +1,7 @@
-#include "PM_driver.h";
+#include "PM_driver.h"
 
-bool PMsensor::begin() {
+bool PMsensor::begin()
+{
 
 	if (started) return true;
 
@@ -17,7 +18,8 @@ bool PMsensor::begin() {
 
 	return true;
 }
-bool PMsensor::stop() {
+bool PMsensor::stop()
+{
 
 	digitalWrite(_pinENABLE, LOW);
 	digitalWrite(_pinPOWER, LOW);
@@ -27,13 +29,15 @@ bool PMsensor::stop() {
 
 	return true;
 }
-void PMsensor::reset() {
+void PMsensor::reset()
+{
 
 	digitalWrite(_pinRESET, LOW);
 	delay(200);
 	digitalWrite(_pinRESET, HIGH);
 }
-bool PMsensor::update() {
+bool PMsensor::update()
+{
 
 	if (_pmSerial->available()) {
 		if (_pmSerial->find(0x42)) {
@@ -58,4 +62,37 @@ bool PMsensor::update() {
 		}
 	}
 	return false;
+}
+
+
+OneWire oneWire = OneWire(GPIO0);
+DallasTemperature _dallasTemp = DallasTemperature(&oneWire);
+
+bool Sck_DallasTemp::start()
+{
+	_dallasTemp.begin();
+	
+	// If no device is found return false
+	_dallasTemp.getAddress(_oneWireAddress, 0);
+	if (_dallasTemp.validAddress(_oneWireAddress) <= 0) return false;
+
+	_dallasTemp.setResolution(12);
+	_dallasTemp.setWaitForConversion(true);
+
+	return true;
+}
+
+bool Sck_DallasTemp::stop()
+{
+
+	return true;
+}
+
+bool Sck_DallasTemp::getReading()
+{
+	_dallasTemp.requestTemperatures();
+	uRead.fval = _dallasTemp.getTempC(_oneWireAddress);
+	if (uRead.fval <= DEVICE_DISCONNECTED_C) return false;
+	
+	return true;
 }

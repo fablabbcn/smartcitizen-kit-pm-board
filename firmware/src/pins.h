@@ -32,8 +32,8 @@ const uint8_t ADC2 = 19;			// PB02 - A5
 const uint8_t ADC3 = 14; 			// PA02 - A0
 
 // Groove GPIO
-const uint8_t GPIO0 = 38; 			// PA13 - SERCOM4_ALT/PAD[1]
-const uint8_t GPIO1 = 22; 			// PA12 - SERCOM4_ALT/PAD[0]
+const uint8_t GPIO0 = 22; 			// PA12 - SERCOM4_ALT/PAD[0]
+const uint8_t GPIO1 = 38; 			// PA13 - SERCOM4_ALT/PAD[1]
 
 // Groove UART
 const uint8_t RX0 = 34; 				// PA19 - SERCOM1/PAD[3]

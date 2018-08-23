@@ -23,7 +23,9 @@ void SERCOM1_Handler() {
 PMsensor pmA(&SerialPMA_A, POWER_PMS_A, ENABLE_PMS_A, RESET_PMS_A);
 PMsensor pmB(&SerialPMA_B, POWER_PMS_B, ENABLE_PMS_B, RESET_PMS_B);
 
-uint8_t wichCommand = GET_PMA;
+volatile uint8_t wichCommand = GET_PMA;
+
+Sck_DallasTemp dallasTemp;
 
 void setup()
 {
@@ -75,7 +77,6 @@ void setup()
 	Wire.begin(I2C_ADDRESS);
 	Wire.onReceive(receiveEvent);
 	Wire.onRequest(requestEvent);
-
 }
 void receiveEvent(int howMany)
 {
@@ -87,6 +88,7 @@ void receiveEvent(int howMany)
 
 		case PM_START:
 		{
+		// TODO return true or false (or maybe an int that indicates how many pm sensors where started and in wich slots they are.
 				SerialPMA_A.begin(9600);
 				pinPeripheral(RX_A, PIO_SERCOM_ALT);	// PMA_A serial port
 				pinPeripheral(TX_A, PIO_SERCOM_ALT);	// PMA_A serial port
@@ -107,6 +109,9 @@ void receiveEvent(int howMany)
 		case GET_PM_AVG:
 		case GET_PMA:
 		case GET_PMB:
+		case DALLASTEMP_START:
+		case DALLASTEMP_STOP:
+		case GET_DALLASTEMP:
 		{
 				wichCommand = command;
 				break;
@@ -181,6 +186,24 @@ void requestEvent()
 				}
 			}
 
+			break;
+	}
+	case DALLASTEMP_START:
+	{
+			uint8_t result = dallasTemp.start();
+			Wire.write(result);
+			break;
+	}
+	case DALLASTEMP_STOP:
+	{
+			uint8_t result = dallasTemp.stop();
+			Wire.write(result);
+			break;
+	}
+	case GET_DALLASTEMP:
+	{
+			if (!dallasTemp.getReading()) dallasTemp.uRead.fval = -9999;
+			for (uint8_t i=0; i<4; i++) Wire.write(dallasTemp.uRead.b[i]);
 			break;
 	}
 }

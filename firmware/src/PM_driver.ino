@@ -96,16 +96,17 @@ void receiveEvent(int howMany)
 
 		case PM_START:
 		{
-		// TODO return true or false (or maybe an int that indicates how many pm sensors where started and in wich slots they are.
 				SerialPMA_A.begin(9600);
 				pinPeripheral(RX_A, PIO_SERCOM_ALT);	// PMA_A serial port
 				pinPeripheral(TX_A, PIO_SERCOM_ALT);	// PMA_A serial port
 				pmA.begin();
-
-				delay(2000);
+				delay(1000);
 
 				SerialPMA_B.begin(9600);
 				pmB.begin();
+				delay(3000);
+
+				wichCommand = command;
 				break;
 		}
 		case PM_STOP:
@@ -132,7 +133,19 @@ void requestEvent()
 {
 	switch (wichCommand)
 {
+	case PM_START:
+	{
+			uint8_t result = 0;
+			if (SerialPMA_A.available() || SerialPMA_B.available()) Wire.write(1);
+			else {
+				Wire.write(0);
+				pmA.stop();
+				pmB.stop();
+			}
 
+			break;
+	
+	}
 	case GET_PMA:
 	{
 			for (uint8_t i=0; i<6; i++) {

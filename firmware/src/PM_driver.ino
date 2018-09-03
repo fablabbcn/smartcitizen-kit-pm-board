@@ -4,6 +4,8 @@
 
 #include <PM_driver.h>
 
+/* #define debug */
+
 #define I2C_ADDRESS 0x02
 
 // Hardware Serial UART PM-A
@@ -77,6 +79,12 @@ void setup()
 	Wire.begin(I2C_ADDRESS);
 	Wire.onReceive(receiveEvent);
 	Wire.onRequest(requestEvent);
+
+#ifdef debug
+	SerialUSB.begin(115200);
+	while (!SerialUSB);
+	SerialUSB.println("Starting...");
+#endif
 }
 void receiveEvent(int howMany)
 {

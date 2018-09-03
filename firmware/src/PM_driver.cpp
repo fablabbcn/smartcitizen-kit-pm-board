@@ -74,7 +74,7 @@ bool Sck_DallasTemp::start()
 	
 	// If no device is found return false
 	_dallasTemp.getAddress(_oneWireAddress, 0);
-	if (_dallasTemp.validAddress(_oneWireAddress) <= 0) return false;
+	if (!getReading()) return false;
 
 	_dallasTemp.setResolution(12);
 	_dallasTemp.setWaitForConversion(true);

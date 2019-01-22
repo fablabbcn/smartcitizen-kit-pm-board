@@ -44,23 +44,31 @@ bool PMsensor::update()
 			_pmSerial->readBytes(buff, buffLong);
 			if (buff[0] == 0x4d) {
 
-				values[0] = buff[3];
-				values[1] = buff[4];
-				values[2] = buff[5];
-				values[3] = buff[6];
-				values[4] = buff[7];
-				values[5] = buff[8];
-
 				pm1 = (buff[3]<<8) + buff[4];
 				pm25 = (buff[5]<<8) + buff[6];
 				pm10 = (buff[7]<<8) + buff[8];
+				pm1_uae = (buff[9]<<8) + buff[10];
+				pm25_uae = (buff[11]<<8) + buff[12];
+				pm10_uae = (buff[13]<<8) + buff[14];
+				pn03 = (buff[15]<<8) + buff[16];
+				pn05 = (buff[17]<<8) + buff[18];
+				pn1 = (buff[19]<<8) + buff[20];
+				pn25 = (buff[21]<<8) + buff[22];
+				pn5 = (buff[23]<<8) + buff[24];
+				pn10 = (buff[25]<<8) + buff[26];
+
+				for (uint8_t i=0; i<valuesSize; i++) values[i] = buff[i+3];
 
 				lastReading = millis();
+				active = true;
 
 				return true;
 			}
 		}
+	} else {
+		if (millis() - lastReading < 10000) active = false;
 	}
+
 	return false;
 }
 

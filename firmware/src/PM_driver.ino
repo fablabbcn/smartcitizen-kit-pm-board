@@ -142,43 +142,39 @@ void requestEvent()
 				pmA.stop();
 				pmB.stop();
 			}
-
 			break;
-	
 	}
 	case GET_PMA:
 	{
-			for (uint8_t i=0; i<6; i++) {
-				Wire.write(pmA.values[i]);
-			}
+			if (pmA.active) for (uint8_t i=0; i<valuesSize; i++) Wire.write(pmA.values[i]);
+			else for (uint8_t i=0; i<valuesSize; i++) Wire.write(255);
 			break;
 	}
 	case GET_PMB:
 	{
-			for (uint8_t i=0; i<6; i++) {
-				Wire.write(pmB.values[i]);
-			}
+			if (pmB.active) for (uint8_t i=0; i<valuesSize; i++) Wire.write(pmB.values[i]);
+			else for (uint8_t i=0; i<valuesSize; i++) Wire.write(255);
 			break;
 	}
 	case GET_PM_AVG:
 	{
-			bool pmAactive = false;
-			bool pmBactive = false;
-			uint8_t toSendValues[6] = {0,0,0,0,0,0};	// 6 bytes 0:1->pm1, 2:3->pm25, 4:5->pm10
+			uint8_t toSendValues[valuesSize];
 
-
-			// Check if both are active
-			if (millis() - pmA.lastReading < 10000) pmAactive = true;
-			if (millis() - pmB.lastReading < 10000) pmBactive = true;
-
-
-			// Send values 	(6 bytes 0:1->pm1, 2:3->pm25, 4:5->pm10)
 			// Average both readings
-			if (pmAactive && pmBactive) {
+			if (pmA.active && pmB.active) {
 
 				uint16_t bothPm1 = (pmA.pm1 + pmB.pm1) / 2;
 				uint16_t bothPm25 = (pmA.pm25 + pmB.pm25) / 2;
 				uint16_t bothPm10 = (pmA.pm10 + pmB.pm10) / 2;
+				uint16_t bothPm1_uae = (pmA.pm1_uae + pmB.pm1_uae) / 2;
+				uint16_t bothPm25_uae = (pmA.pm25_uae + pmB.pm25_uae) / 2;
+				uint16_t bothPm10_uae = (pmA.pm10_uae + pmB.pm10_uae) / 2;
+				uint16_t bothPn03 = (pmA.pn03 + pmB.pn03) / 2;
+				uint16_t bothPn05 = (pmA.pn05 + pmB.pn05) / 2;
+				uint16_t bothPn1 = (pmA.pn1 + pmB.pn1) / 2;
+				uint16_t bothPn25 = (pmA.pn25 + pmB.pn25) / 2;
+				uint16_t bothPn5 = (pmA.pn5 + pmB.pn5) / 2;
+				uint16_t bothPn10 = (pmA.pn10 + pmB.pn10) / 2;
 
 				toSendValues[0] = bothPm1 >> 8;
 				toSendValues[1] = bothPm1 & 0x00FF;
@@ -186,26 +182,35 @@ void requestEvent()
 				toSendValues[3] = bothPm25 & 0x00FF;
 				toSendValues[4] = bothPm10 >> 8;
 				toSendValues[5] = bothPm10 & 0x00FF;
+				toSendValues[6] = bothPm1_uae >> 8;
+				toSendValues[7] = bothPm1_uae & 0x00FF;
+				toSendValues[8] = bothPm25_uae >> 8;
+				toSendValues[9] = bothPm25_uae & 0x00FF;
+				toSendValues[10] = bothPm10_uae >> 8;
+				toSendValues[11] = bothPm10_uae & 0x00FF;
+				toSendValues[12] = bothPn03 >> 8;
+				toSendValues[13] = bothPn03 & 0x00FF;
+				toSendValues[14] = bothPn05 >> 8;
+				toSendValues[15] = bothPn05 & 0x00FF;
+				toSendValues[16] = bothPn1 >> 8;
+				toSendValues[17] = bothPn1 & 0x00FF;
+				toSendValues[18] = bothPn25 >> 8;
+				toSendValues[19] = bothPn25 & 0x00FF;
+				toSendValues[20] = bothPn5 >> 8;
+				toSendValues[21] = bothPn5 & 0x00FF;
+				toSendValues[22] = bothPn10 >> 8;
+				toSendValues[23] = bothPn10 & 0x00FF;
 
-				for (uint8_t i=0; i<6; i++) {
+				for (uint8_t i=0; i<valuesSize; i++) {
 					Wire.write(toSendValues[i]);
 				}
 
-				// Otherwise send only the active one	
-			} else if (pmAactive) {
-				for (uint8_t i=0; i<6; i++) {
-					Wire.write(pmA.values[i]);
-				}
-			} else if (pmBactive) {
-				for (uint8_t i=0; i<6; i++) {
-					Wire.write(pmB.values[i]);
-				}
-			} else {
-				// No PM active, send 0 for now TODO error code to report that no device is available
-				for (uint8_t i=0; i<6; i++) {
-					Wire.write(0);
-				}
-			}
+			// Otherwise send only the active one	
+			} else if (pmA.active) for (uint8_t i=0; i<valuesSize; i++) Wire.write(pmA.values[i]);
+			else if (pmB.active) for (uint8_t i=0; i<valuesSize; i++) Wire.write(pmB.values[i]);
+
+			// Or send 255 as ERROR code
+			else for (uint8_t i=0; i<valuesSize; i++) Wire.write(255);
 
 			break;
 	}

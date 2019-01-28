@@ -47,9 +47,6 @@ bool PMsensor::update()
 				pm1 = (buff[3]<<8) + buff[4];
 				pm25 = (buff[5]<<8) + buff[6];
 				pm10 = (buff[7]<<8) + buff[8];
-				pm1_uae = (buff[9]<<8) + buff[10];
-				pm25_uae = (buff[11]<<8) + buff[12];
-				pm10_uae = (buff[13]<<8) + buff[14];
 				pn03 = (buff[15]<<8) + buff[16];
 				pn05 = (buff[17]<<8) + buff[18];
 				pn1 = (buff[19]<<8) + buff[20];
@@ -57,7 +54,10 @@ bool PMsensor::update()
 				pn5 = (buff[23]<<8) + buff[24];
 				pn10 = (buff[25]<<8) + buff[26];
 
-				for (uint8_t i=0; i<valuesSize; i++) values[i] = buff[i+3];
+				for (uint8_t i=0; i<valuesSize; i++) {
+					if (i < 6) values[i] = buff[i+3];
+					else values[i] = buff[i+9];
+				}
 
 				lastReading = millis();
 				active = true;

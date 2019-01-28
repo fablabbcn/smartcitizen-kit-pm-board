@@ -20,7 +20,7 @@ enum PMcommands {
 	GET_DALLASTEMP
 };
 
-static const uint8_t valuesSize = 24;
+static const uint8_t valuesSize = 18;
 
 class PMsensor {
 public:
@@ -58,9 +58,6 @@ public:
 	uint16_t pm1;
 	uint16_t pm25;
 	uint16_t pm10;
-	uint16_t pm1_uae;
-	uint16_t pm25_uae;
-	uint16_t pm10_uae;
 	uint16_t pn03;
 	uint16_t pn05;
 	uint16_t pn1;

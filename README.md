@@ -1,4 +1,7 @@
-# Smart Citizen Kit 2.0 PM Board [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
+# Smart Citizen Kit 2.0 PM Board
+
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
+[![DOI](https://zenodo.org/badge/126015935.svg)](https://zenodo.org/badge/latestdoi/126015935)
 
 ![alt text](https://cdn.rawgit.com/fablabbcn/smartcitizen-kit-pm-board/2530bf9b/pm_board.png "PM and Aux Board")
 

@@ -39,6 +39,7 @@ public:
 	bool update();
 
 	uint32_t lastReading = 0;
+	uint32_t lastFail = 0;
 	bool active = false;
 
 	uint8_t values[valuesSize];

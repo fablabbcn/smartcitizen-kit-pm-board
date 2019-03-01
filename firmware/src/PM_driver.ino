@@ -29,6 +29,8 @@ volatile uint8_t wichCommand = GET_PMA;
 
 Sck_DallasTemp dallasTemp;
 
+uint32_t timer = 0;
+
 void setup()
 {
 
@@ -228,8 +230,9 @@ void requestEvent()
 
 void loop()
 {
-	if (millis() % 1000 == 0) {
+	if (millis() - timer > 1000) {
 		pmA.update();
 		pmB.update();
+		timer = millis();
 	}
 }

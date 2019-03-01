@@ -38,9 +38,31 @@ void PMsensor::reset()
 }
 bool PMsensor::update()
 {
+	if (millis() - lastReading < 1000) return true; 	// PM sensor only delivers one reading per second
+	if (millis() - lastFail < 1000) return false;
 
-	if (_pmSerial->available()) {
-		if (_pmSerial->find(0x42)) {
+	// Empty serial buffer
+	while(_pmSerial->available()) _pmSerial->read();
+
+	// Wait for new readings
+	uint32_t startPoint = millis();
+	while(_pmSerial->available() < 25) {
+		if (millis() - startPoint > 1500) {
+			// Timeout
+			lastFail = millis();
+
+			// After 10 seconds declare the PM innactive
+			if (millis() - lastReading < 10000) active = false;
+			return false;
+		}
+	}
+
+	while(_pmSerial->available()) {
+
+		byte sb = 0;
+		sb = _pmSerial->read();
+
+		if (sb == 0x42) {
 			_pmSerial->readBytes(buff, buffLong);
 			if (buff[0] == 0x4d) {
 
@@ -60,18 +82,15 @@ bool PMsensor::update()
 				}
 
 				lastReading = millis();
+				lastFail = 0;
 				active = true;
 
 				return true;
 			}
 		}
-	} else {
-		if (millis() - lastReading < 10000) active = false;
 	}
-
 	return false;
 }
-
 
 OneWire oneWire = OneWire(GPIO0);
 DallasTemperature _dallasTemp = DallasTemperature(&oneWire);

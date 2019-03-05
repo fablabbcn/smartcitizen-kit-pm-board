@@ -90,7 +90,6 @@ void setup()
 }
 void receiveEvent(int howMany)
 {
-
 	byte command = 99;
 	if (Wire.available()) command = Wire.read();
 
@@ -137,7 +136,6 @@ void requestEvent()
 {
 	case PM_START:
 	{
-			uint8_t result = 0;
 			if (SerialPMA_A.available() || SerialPMA_B.available()) Wire.write(1);
 			else {
 				Wire.write(0);

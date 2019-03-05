@@ -8,6 +8,7 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
+/* #define debug_PM */
 
 enum PMcommands {
 	PM_START, 		// Start both PMS

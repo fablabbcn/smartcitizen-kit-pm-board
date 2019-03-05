@@ -47,10 +47,16 @@ bool PMsensor::update()
 		if (millis() - startPoint > 1500) {
 			// Timeout
 			lastFail = millis();
+#ifdef debug_PM
+			SerialUSB.println("Timeout waiting for data!!");
+#endif
 
 			// After 10 seconds declare the PM innactive
 			if (millis() - lastReading < 10000) {
 				active = false;
+#ifdef debug_PM
+				SerialUSB.println("No data received in 10 seconds setting PM as innactive");
+#endif
 			}
 			return false;
 		}
@@ -78,9 +84,22 @@ bool PMsensor::update()
 		unsigned char buff[buffLong];
 		byte howMany =  _pmSerial->readBytes(buff, buffLong);
 
+#ifdef debug_PM
+		SerialUSB.print("Received buffer ");
+		SerialUSB.print(howMany);
+		SerialUSB.println(" bytes:");
+		for (uint8_t i=0; i<buffLong; i++) {
+			SerialUSB.print(i);
+			SerialUSB.print(": ");
+			SerialUSB.println(buff[i]);
+		}
+#endif
 
 		// Is buffer complete?
 		if (howMany < 30) {
+#ifdef debug_PM
+			SerialUSB.println("ERROR: Received to few chars!");
+#endif
 			return false;
 		}
 
@@ -88,6 +107,11 @@ bool PMsensor::update()
 		uint16_t checkSum = (buff[28]<<8) + buff[29];
 		for(int i=0; i<(buffLong - 2); i++) sum += buff[i];
 		if(sum != checkSum) {
+#ifdef debug_PM
+			SerialUSB.println("Checksum ERROR!");
+			SerialUSB.println(sum);
+			SerialUSB.println(checkSum);
+#endif
 			return false;
 		}
 
@@ -114,6 +138,9 @@ bool PMsensor::update()
 
 		return true;
 	}
+#ifdef debug_PM
+	SerialUSB.println("Unknown PM ERROR! (probably bad start char)");
+#endif
 	return false;
 }
 

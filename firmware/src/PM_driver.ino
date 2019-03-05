@@ -4,8 +4,6 @@
 
 #include <PM_driver.h>
 
-/* #define debug */
-
 #define I2C_ADDRESS 0x02
 
 // Hardware Serial UART PM-A
@@ -82,7 +80,7 @@ void setup()
 	Wire.onReceive(receiveEvent);
 	Wire.onRequest(requestEvent);
 
-#ifdef debug
+#ifdef debug_PM
 	SerialUSB.begin(115200);
 	while (!SerialUSB);
 	SerialUSB.println("Starting...");
@@ -136,8 +134,14 @@ void requestEvent()
 {
 	case PM_START:
 	{
+#ifdef debug_PM
+			SerialUSB.println("Starting PM sensor...");
+#endif
 			if (SerialPMA_A.available() || SerialPMA_B.available()) Wire.write(1);
 			else {
+#ifdef debug_PM
+			SerialUSB.println("ERROR Starting PM sensor!!!");
+#endif
 				Wire.write(0);
 				pmA.stop();
 				pmB.stop();
@@ -146,18 +150,27 @@ void requestEvent()
 	}
 	case GET_PMA:
 	{
+#ifdef debug_PM
+			SerialUSB.println("Sending PMA values...");
+#endif
 			if (pmA.active) for (uint8_t i=0; i<valuesSize; i++) Wire.write(pmA.values[i]);
 			else for (uint8_t i=0; i<valuesSize; i++) Wire.write(255);
 			break;
 	}
 	case GET_PMB:
 	{
+#ifdef debug_PM
+			SerialUSB.println("Sending PMB values...");
+#endif
 			if (pmB.active) for (uint8_t i=0; i<valuesSize; i++) Wire.write(pmB.values[i]);
 			else for (uint8_t i=0; i<valuesSize; i++) Wire.write(255);
 			break;
 	}
 	case GET_PM_AVG:
 	{
+#ifdef debug_PM
+			SerialUSB.println("Sending average values...");
+#endif
 			uint8_t toSendValues[valuesSize];
 
 			// Average both readings

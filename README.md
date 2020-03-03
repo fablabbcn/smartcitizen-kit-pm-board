@@ -13,7 +13,6 @@ Expansion board designed to expand the functionality of the Smart Citizen Kit 2.
 * Two grove ADC.
 * In/out groove connectors to chain multiple boards to a Smart Citizen Kit 2.0.
 
-Some dev [notes](https://hackmd.io/WUZ8Pk7URkmGuLFe-FpaHQ#)
 
 ## The core firmware (C++)
 
@@ -36,7 +35,11 @@ After clonning the repository:
 
 ## Documentation
 
-Full documentation under development. Follow the [forum](https://forum.smartcitizen.me/) and [twitter](https://twitter.com/SmartCitizenKit) for updates.
+Check the [Smart Citizen documentation](https://docs.smartcitizen.me/Components/PM%20Board/)
+
+## Questions and comments
+
+Check the [forum](https://forum.smartcitizen.me/)
 
 ## Related Smart Citizen repositories
 

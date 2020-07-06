@@ -8,7 +8,10 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-/* #define debug_PM */
+// Library for GPS data parsing
+#include "TinyGPS++.h"
+
+#define debug_PM
 
 enum PMcommands {
 	PM_START, 		// Start both PMS
@@ -18,7 +21,10 @@ enum PMcommands {
 	PM_STOP, 		// Stop both PMS
 	DALLASTEMP_START,
 	DALLASTEMP_STOP,
-	GET_DALLASTEMP
+	GET_DALLASTEMP,
+	GROVEGPS_START,
+	GROVEGPS_STOP,
+	GROVEGPS_GET
 };
 
 static const uint8_t valuesSize = 18;
@@ -116,4 +122,21 @@ class Sck_DallasTemp {
 
 	private:
 		uint8_t _oneWireAddress[8];
+};
+
+class GrooveGps {
+	public:
+		bool start();
+		bool stop();
+		void encode(char c);
+		bool getReading();
+		
+		static const uint8_t DATA_LEN = 64;
+		byte data[DATA_LEN];
+		bool enabled = false;
+
+	private:
+		TinyGPSPlus gps;
+		uint16_t getCheckSum(char* sentence);
+		bool sendCommand(char* com);
 };

@@ -175,3 +175,82 @@ bool Sck_DallasTemp::getReading()
 
 	return true;
 }
+
+bool GrooveGps::start()
+{
+	// Check Serial port for GPS data 
+	uint32_t start = millis();
+	String sentence;
+
+	while (millis() - start < 1000) {
+		if (SerialGrove.available()) sentence += (char)SerialGrove.read();
+		if (sentence.indexOf("$GP") >= 0) {
+			enabled = true;
+			return true;
+		}
+		if (sentence.length() > 4) sentence.remove(0, 1);
+	}
+
+	/* delay(2000); */
+	/* SerialUSB.println("Starting GPS"); */
+	/*
+	0 NMEA_SEN_GLL,  // GPGLL interval - Geographic Position - Latitude longitude  
+	1 NMEA_SEN_RMC,  // GPRMC interval - Recomended Minimum Specific GNSS Sentence 
+	2 NMEA_SEN_VTG,  // GPVTG interval - Course Over Ground and Ground Speed  
+	3 NMEA_SEN_GGA,  // GPGGA interval - GPS Fix Data  
+	4 NMEA_SEN_GSA,  // GPGSA interval - GNSS DOPS and Active Satellites
+	5 NMEA_SEN_GSV,  // GPGSV interval - GNSS Satellites in View
+	17 NMEA_SEN_ZDA,  // GPZDA interval – Time & Date
+	*/
+	// Disable all except RMC and GGA
+	/* sendCommand("PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"); */
+  
+	return false;
+}
+
+bool GrooveGps::stop()
+{
+	enabled = false;
+	return true;
+}
+
+void GrooveGps::encode(char c)
+{
+	gps.encode(c);	
+}
+
+bool GrooveGps::getReading()
+{
+	return true;
+}
+
+uint16_t GrooveGps::getCheckSum(char* sentence)
+{
+	uint16_t checkSum = 0;
+
+	for (uint16_t i=0; i<strlen(sentence); i++) {
+		checkSum ^= sentence[i]; 
+	}
+
+	return checkSum;
+}
+
+bool GrooveGps::sendCommand(char* com)
+{
+	SerialUSB.print("Sending command: ");
+	SerialUSB.println(com);
+
+	uint8_t checkSum = getCheckSum(com);
+	char checkSumSTR[3];
+	sprintf(checkSumSTR, "*%02X", checkSum);
+	
+	for (uint16_t i=0; i<strlen(com); i++) {
+		SerialGrove.write(com[i]);
+		SerialUSB.write(com[i]);
+	}
+
+	SerialGrove.println(checkSumSTR);
+	SerialUSB.println(checkSumSTR);
+}
+
+

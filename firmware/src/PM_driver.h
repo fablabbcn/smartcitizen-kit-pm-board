@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <pins.h>
+#include <time.h>
 
 // Libraries for DallasTemp
 #include <OneWire.h>
@@ -131,12 +132,29 @@ class GrooveGps {
 		void encode(char c);
 		bool getReading();
 		
-		static const uint8_t DATA_LEN = 64;
+		// Data (26 bytes for now)
+		// Valid -> uint8 - 1
+		// 	1 = GPS fix (SPS)
+		// 	2 = DGPS fix
+		// 	3 = PPS fix
+		// 	4 = Real Time Kinematic
+		// 	5 = Float RTK
+		// 	6 = estimated (dead reckoning) (2.3 feature)
+		// 	7 = Manual input mode
+		// 	8 = Simulation mode
+		// Latitude DDD.DDDDDD (negative is south) -> double - 4
+		// Longitude DDD.DDDDDD (negative is west) -> double - 4
+		// Altitude in meters -> float - 4
+		// Time (epoch) -> uint32 - 4
+		// Speed (meters per second) -> float - 4
+		// Horizontal dilution of position -> float - 4
+		// Number of Satellites being traked -> uint8 - 1
+
+		static const uint8_t DATA_LEN = 26;
 		byte data[DATA_LEN];
 		bool enabled = false;
 
 	private:
-		TinyGPSPlus gps;
 		uint16_t getCheckSum(char* sentence);
 		bool sendCommand(char* com);
 };

@@ -176,6 +176,9 @@ bool Sck_DallasTemp::getReading()
 	return true;
 }
 
+TinyGPSPlus gps;
+TinyGPSCustom fixQuality(gps, "GPGGA", 6);
+
 bool GrooveGps::start()
 {
 	// Check Serial port for GPS data 
@@ -191,9 +194,9 @@ bool GrooveGps::start()
 		if (sentence.length() > 4) sentence.remove(0, 1);
 	}
 
-	/* delay(2000); */
-	/* SerialUSB.println("Starting GPS"); */
 	/*
+	FIXME this command still doesn't work
+	It will be good to avoid getting sentences we don't need
 	0 NMEA_SEN_GLL,  // GPGLL interval - Geographic Position - Latitude longitude  
 	1 NMEA_SEN_RMC,  // GPRMC interval - Recomended Minimum Specific GNSS Sentence 
 	2 NMEA_SEN_VTG,  // GPVTG interval - Course Over Ground and Ground Speed  
@@ -204,6 +207,9 @@ bool GrooveGps::start()
 	*/
 	// Disable all except RMC and GGA
 	/* sendCommand("PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"); */
+
+	// TODO Change baudrate to 115200
+
   
 	return false;
 }
@@ -221,6 +227,75 @@ void GrooveGps::encode(char c)
 
 bool GrooveGps::getReading()
 {
+	// TODO decide how old is a reading still valid...
+	
+	
+	// Valid -> uint8 - 1
+	// 	0 = Invalid
+	// 	1 = GPS fix (SPS)
+	// 	2 = DGPS fix
+	// 	3 = PPS fix
+	// 	4 = Real Time Kinematic
+	// 	5 = Float RTK
+	// 	6 = estimated (dead reckoning) (2.3 feature)
+	// 	7 = Manual input mode
+	// 	8 = Simulation mode
+	String fixQual = fixQuality.value(); 	// Convert ASCII digit to int (48 is ASCII '0')
+	data[0] = fixQual.toInt();
+
+	// Latitude DDD.DDDDDD (negative is south) -> double - 4
+	data[1] = gps.location.lat();
+
+	// Longitude DDD.DDDDDD (negative is west) -> double - 4
+	data[5] = gps.location.lng();
+
+	// Altitude in meters -> float - 4
+	data[9] = gps.altitude.meters();
+
+	// Time (epoch) -> uint32 - 4
+	struct tm tm; 				// http://www.nongnu.org/avr-libc/user-manual/structtm.html
+	tm.tm_isdst = -1; 			// -1 means no data available
+	tm.tm_yday = 0;
+	tm.tm_wday = 0;
+	tm.tm_year = gps.date.year() - 1900; 	// tm struct expects years since 1900
+	tm.tm_mon = gps.date.month() - 1; 	// tm struct uses 0-11 months
+	tm.tm_mday = gps.date.day();
+	tm.tm_hour = gps.time.hour();
+	tm.tm_min = gps.time.minute();
+	tm.tm_sec = gps.time.second();
+
+	uint32_t epochTime = mktime(&tm);
+	data[13] = epochTime;
+
+	// Speed (meters per second) -> float - 4
+	data[17] = gps.speed.mps();
+
+	// Horizontal dilution of position -> float - 4
+	data[21] = gps.hdop.value();
+
+	// Number of Satellites being traked -> uint8 - 1
+	data[25] = gps.satellites.value();
+
+
+#ifdef debug_PM
+	SerialUSB.print("Fix quality: ");
+	SerialUSB.println(fixQual);
+	SerialUSB.print("Latitude: ");
+	SerialUSB.println(gps.location.lat(), 6);
+	SerialUSB.print("Longitude: ");
+	SerialUSB.println(gps.location.lng(), 6);
+	SerialUSB.print("Altitude: ");
+	SerialUSB.println(gps.altitude.meters());
+	SerialUSB.print("Epoch time: ");
+	SerialUSB.println(epochTime);
+	SerialUSB.print("Speed (m per sec): ");
+	SerialUSB.println(gps.speed.mps());
+	SerialUSB.print("Hotizontal dilution: of precision: ");
+	SerialUSB.println(gps.hdop.value());
+	SerialUSB.print("Satellite number: ");
+	SerialUSB.println(gps.satellites.value());
+#endif
+
 	return true;
 }
 

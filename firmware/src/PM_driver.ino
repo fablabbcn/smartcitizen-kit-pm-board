@@ -78,6 +78,9 @@ void setup()
 	pinPeripheral(RX0, PIO_SERCOM);
 	pinPeripheral(TX0, PIO_SERCOM);
 
+	// temp
+	groveGps.start();
+
 	Wire.begin(I2C_ADDRESS);
 	Wire.onReceive(receiveEvent);
 	Wire.onRequest(requestEvent);
@@ -270,9 +273,17 @@ void loop()
 		pmA.update();
 		pmB.update();
 		timer = millis();
+
+		// temp
+		groveGps.getReading();
 	}
 
 	if (groveGps.enabled) {
-		while (SerialGrove.available()) groveGps.encode(SerialGrove.read());
+		while (SerialGrove.available()) {
+			/* char c = SerialGrove.read(); */
+			groveGps.encode(SerialGrove.read());
+			/* groveGps.encode(c); */
+			/* SerialUSB.print(c); */
+		}
 	}
 }

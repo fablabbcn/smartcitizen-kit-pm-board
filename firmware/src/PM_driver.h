@@ -132,8 +132,8 @@ class GrooveGps {
 		void encode(char c);
 		bool getReading();
 		
-		// Data (26 bytes for now)
-		// Valid -> uint8 - 1
+		// Data (34 bytes)
+		// Fix Quality -> uint8 - 1
 		// 	1 = GPS fix (SPS)
 		// 	2 = DGPS fix
 		// 	3 = PPS fix
@@ -150,9 +150,9 @@ class GrooveGps {
 		// Horizontal dilution of position -> float - 4
 		// Number of Satellites being traked -> uint8 - 1
 
-		static const uint8_t DATA_LEN = 26;
+		static const uint8_t DATA_LEN = 34;
 		byte data[DATA_LEN];
-		bool enabled = false;
+		bool started = false;
 
 	private:
 		uint16_t getCheckSum(char* sentence);

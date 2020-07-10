@@ -258,10 +258,8 @@ void requestEvent()
 	}
 	case GROVEGPS_GET:
 	{
-			if (!groveGps.getReading()) Wire.write(0);
-			else {
-				for (uint8_t i=0; i<groveGps.DATA_LEN; i++) Wire.write(groveGps.data[i]);
-			}
+			groveGps.getReading();
+			for (uint8_t i=0; i<groveGps.DATA_LEN; i++) Wire.write(groveGps.data[i]);
 			break;
 	}
 }
@@ -278,7 +276,7 @@ void loop()
 		groveGps.getReading();
 	}
 
-	if (groveGps.enabled) {
+	if (groveGps.started) {
 		while (SerialGrove.available()) {
 			/* char c = SerialGrove.read(); */
 			groveGps.encode(SerialGrove.read());

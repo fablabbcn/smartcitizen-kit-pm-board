@@ -181,14 +181,16 @@ TinyGPSCustom fixQuality(gps, "GPGGA", 6);
 
 bool GrooveGps::start()
 {
-	// Check Serial port for GPS data 
+	if (started) return true;
+
+	// Check Serial port for GPS data
 	uint32_t start = millis();
 	String sentence;
 
 	while (millis() - start < 1000) {
 		if (SerialGrove.available()) sentence += (char)SerialGrove.read();
 		if (sentence.indexOf("$GP") >= 0) {
-			enabled = true;
+			started = true;
 			return true;
 		}
 		if (sentence.length() > 4) sentence.remove(0, 1);
@@ -197,10 +199,10 @@ bool GrooveGps::start()
 	/*
 	FIXME this command still doesn't work
 	It will be good to avoid getting sentences we don't need
-	0 NMEA_SEN_GLL,  // GPGLL interval - Geographic Position - Latitude longitude  
-	1 NMEA_SEN_RMC,  // GPRMC interval - Recomended Minimum Specific GNSS Sentence 
-	2 NMEA_SEN_VTG,  // GPVTG interval - Course Over Ground and Ground Speed  
-	3 NMEA_SEN_GGA,  // GPGGA interval - GPS Fix Data  
+	0 NMEA_SEN_GLL,  // GPGLL interval - Geographic Position - Latitude longitude
+	1 NMEA_SEN_RMC,  // GPRMC interval - Recomended Minimum Specific GNSS Sentence
+	2 NMEA_SEN_VTG,  // GPVTG interval - Course Over Ground and Ground Speed
+	3 NMEA_SEN_GGA,  // GPGGA interval - GPS Fix Data
 	4 NMEA_SEN_GSA,  // GPGSA interval - GNSS DOPS and Active Satellites
 	5 NMEA_SEN_GSV,  // GPGSV interval - GNSS Satellites in View
 	17 NMEA_SEN_ZDA,  // GPZDA interval – Time & Date
@@ -210,27 +212,27 @@ bool GrooveGps::start()
 
 	// TODO Change baudrate to 115200
 
-  
+
 	return false;
 }
 
 bool GrooveGps::stop()
 {
-	enabled = false;
+	started = false;
 	return true;
 }
 
 void GrooveGps::encode(char c)
 {
-	gps.encode(c);	
+	gps.encode(c);
 }
 
 bool GrooveGps::getReading()
 {
 	// TODO decide how old is a reading still valid...
-	
-	
-	// Valid -> uint8 - 1
+
+
+	// Fix Quality -> uint8 - 1
 	// 	0 = Invalid
 	// 	1 = GPS fix (SPS)
 	// 	2 = DGPS fix
@@ -240,17 +242,21 @@ bool GrooveGps::getReading()
 	// 	6 = estimated (dead reckoning) (2.3 feature)
 	// 	7 = Manual input mode
 	// 	8 = Simulation mode
-	String fixQual = fixQuality.value(); 	// Convert ASCII digit to int (48 is ASCII '0')
-	data[0] = fixQual.toInt();
+	String fixQual = fixQuality.value();
+	uint8_t tmpFix = fixQual.toInt();
+	memcpy(&data[0], &tmpFix, 1);
 
-	// Latitude DDD.DDDDDD (negative is south) -> double - 4
-	data[1] = gps.location.lat();
+	// Latitude DDD.DDDDDD (negative is south) -> double - 8
+	double tmpLat = gps.location.lat();
+	memcpy(&data[1], &tmpLat, 8);
 
-	// Longitude DDD.DDDDDD (negative is west) -> double - 4
-	data[5] = gps.location.lng();
+	// Longitude DDD.DDDDDD (negative is west) -> double - 8
+	double tmpLong = gps.location.lng();
+	memcpy(&data[9], &tmpLong, 8);
 
 	// Altitude in meters -> float - 4
-	data[9] = gps.altitude.meters();
+	float tmpAlt = gps.altitude.meters();
+	memcpy(&data[17], &tmpAlt, 4);
 
 	// Time (epoch) -> uint32 - 4
 	struct tm tm; 				// http://www.nongnu.org/avr-libc/user-manual/structtm.html
@@ -265,16 +271,19 @@ bool GrooveGps::getReading()
 	tm.tm_sec = gps.time.second();
 
 	uint32_t epochTime = mktime(&tm);
-	data[13] = epochTime;
+	memcpy(&data[21], &epochTime, 4);
 
 	// Speed (meters per second) -> float - 4
-	data[17] = gps.speed.mps();
+	float tmpSpeed = gps.speed.mps();
+	memcpy(&data[25], &tmpSpeed, 4);
 
 	// Horizontal dilution of position -> float - 4
-	data[21] = gps.hdop.value();
+	float tmpHdop = gps.hdop.value();
+	memcpy(&data[29], &tmpHdop, 4);
 
 	// Number of Satellites being traked -> uint8 - 1
-	data[25] = gps.satellites.value();
+	uint8_t tmpSat = gps.satellites.value();
+	memcpy(&data[29], &tmpSat, 1);
 
 
 #ifdef debug_PM
@@ -304,7 +313,7 @@ uint16_t GrooveGps::getCheckSum(char* sentence)
 	uint16_t checkSum = 0;
 
 	for (uint16_t i=0; i<strlen(sentence); i++) {
-		checkSum ^= sentence[i]; 
+		checkSum ^= sentence[i];
 	}
 
 	return checkSum;
@@ -318,7 +327,7 @@ bool GrooveGps::sendCommand(char* com)
 	uint8_t checkSum = getCheckSum(com);
 	char checkSumSTR[3];
 	sprintf(checkSumSTR, "*%02X", checkSum);
-	
+
 	for (uint16_t i=0; i<strlen(com); i++) {
 		SerialGrove.write(com[i]);
 		SerialUSB.write(com[i]);

@@ -110,6 +110,9 @@ void receiveEvent(int howMany)
 				pmB.begin();
 				delay(3000);
 
+				while(SerialPMA_A.available()) SerialPMA_A.read();
+				while(SerialPMA_B.available()) SerialPMA_B.read();
+
 				wichCommand = command;
 				break;
 		}

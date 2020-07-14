@@ -283,7 +283,7 @@ bool GrooveGps::getReading()
 
 	// Number of Satellites being traked -> uint8 - 1
 	uint8_t tmpSat = gps.satellites.value();
-	memcpy(&data[29], &tmpSat, 1);
+	memcpy(&data[33], &tmpSat, 1);
 
 
 #ifdef debug_PM

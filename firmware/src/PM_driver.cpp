@@ -196,23 +196,6 @@ bool GrooveGps::start()
 		if (sentence.length() > 4) sentence.remove(0, 1);
 	}
 
-	/*
-	FIXME this command still doesn't work
-	It will be good to avoid getting sentences we don't need
-	0 NMEA_SEN_GLL,  // GPGLL interval - Geographic Position - Latitude longitude
-	1 NMEA_SEN_RMC,  // GPRMC interval - Recomended Minimum Specific GNSS Sentence
-	2 NMEA_SEN_VTG,  // GPVTG interval - Course Over Ground and Ground Speed
-	3 NMEA_SEN_GGA,  // GPGGA interval - GPS Fix Data
-	4 NMEA_SEN_GSA,  // GPGSA interval - GNSS DOPS and Active Satellites
-	5 NMEA_SEN_GSV,  // GPGSV interval - GNSS Satellites in View
-	17 NMEA_SEN_ZDA,  // GPZDA interval – Time & Date
-	*/
-	// Disable all except RMC and GGA
-	/* sendCommand("PMTK314,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0"); */
-
-	// TODO Change baudrate to 115200
-
-
 	return false;
 }
 
@@ -246,44 +229,68 @@ bool GrooveGps::getReading()
 	uint8_t tmpFix = fixQual.toInt();
 	memcpy(&data[0], &tmpFix, 1);
 
-	// Latitude DDD.DDDDDD (negative is south) -> double - 8
-	double tmpLat = gps.location.lat();
-	memcpy(&data[1], &tmpLat, 8);
+	bool locationValid = gps.location.isValid();
+	memcpy(&data[1], &locationValid, 1);
+	if (locationValid) {
+		// Latitude DDD.DDDDDD (negative is south) -> double - 8
+		double tmpLat = gps.location.lat();
+		memcpy(&data[2], &tmpLat, 8);
 
-	// Longitude DDD.DDDDDD (negative is west) -> double - 8
-	double tmpLong = gps.location.lng();
-	memcpy(&data[9], &tmpLong, 8);
+		// Longitude DDD.DDDDDD (negative is west) -> double - 8
+		double tmpLong = gps.location.lng();
+		memcpy(&data[10], &tmpLong, 8);
+	}
 
-	// Altitude in meters -> float - 4
-	float tmpAlt = gps.altitude.meters();
-	memcpy(&data[17], &tmpAlt, 4);
+	bool altitudeValid = gps.altitude.isValid();
+	memcpy(&data[18], &altitudeValid, 1);
+	if (altitudeValid) {
+		// Altitude in meters -> float - 4
+		float tmpAlt = gps.altitude.meters();
+		memcpy(&data[19], &tmpAlt, 4);
+	}
 
-	// Time (epoch) -> uint32 - 4
-	struct tm tm; 				// http://www.nongnu.org/avr-libc/user-manual/structtm.html
-	tm.tm_isdst = -1; 			// -1 means no data available
-	tm.tm_yday = 0;
-	tm.tm_wday = 0;
-	tm.tm_year = gps.date.year() - 1900; 	// tm struct expects years since 1900
-	tm.tm_mon = gps.date.month() - 1; 	// tm struct uses 0-11 months
-	tm.tm_mday = gps.date.day();
-	tm.tm_hour = gps.time.hour();
-	tm.tm_min = gps.time.minute();
-	tm.tm_sec = gps.time.second();
+	bool timeValid = gps.time.isValid();
+	memcpy(&data[23], &timeValid, 1);
+	if (timeValid) {
+		// Time (epoch) -> uint32 - 4
+		struct tm tm; 				// http://www.nongnu.org/avr-libc/user-manual/structtm.html
+		tm.tm_isdst = -1; 			// -1 means no data available
+		tm.tm_yday = 0;
+		tm.tm_wday = 0;
+		tm.tm_year = gps.date.year() - 1900; 	// tm struct expects years since 1900
+		tm.tm_mon = gps.date.month() - 1; 	// tm struct uses 0-11 months
+		tm.tm_mday = gps.date.day();
+		tm.tm_hour = gps.time.hour();
+		tm.tm_min = gps.time.minute();
+		tm.tm_sec = gps.time.second();
 
-	uint32_t epochTime = mktime(&tm);
-	memcpy(&data[21], &epochTime, 4);
+		uint32_t epochTime = mktime(&tm);
+		memcpy(&data[24], &epochTime, 4);
+	}
 
-	// Speed (meters per second) -> float - 4
-	float tmpSpeed = gps.speed.mps();
-	memcpy(&data[25], &tmpSpeed, 4);
+	bool speedValid = gps.speed.isValid();
+	memcpy(&data[28], &speedValid, 1);
+	if (speedValid) {
+		// Speed (meters per second) -> float - 4
+		float tmpSpeed = gps.speed.mps();
+		memcpy(&data[29], &tmpSpeed, 4);
+	}
 
-	// Horizontal dilution of position -> float - 4
-	float tmpHdop = gps.hdop.value();
-	memcpy(&data[29], &tmpHdop, 4);
+	bool hdopValid = gps.hdop.isValid();
+	memcpy(&data[33], &hdopValid, 1);
+	if (hdopValid) {
+		// Horizontal dilution of position -> float - 4
+		float tmpHdop = gps.hdop.value();
+		memcpy(&data[34], &tmpHdop, 4);
+	}
 
-	// Number of Satellites being traked -> uint8 - 1
-	uint8_t tmpSat = gps.satellites.value();
-	memcpy(&data[33], &tmpSat, 1);
+	bool satellitesValid = gps.satellites.isValid();
+	memcpy(&data[38], &satellitesValid, 1);
+	if (satellitesValid) {
+		// Number of Satellites being traked -> uint8 - 1
+		uint8_t tmpSat = gps.satellites.value();
+		memcpy(&data[39], &tmpSat, 1);
+	}
 
 
 #ifdef debug_PM
@@ -306,35 +313,6 @@ bool GrooveGps::getReading()
 #endif
 
 	return true;
-}
-
-uint16_t GrooveGps::getCheckSum(char* sentence)
-{
-	uint16_t checkSum = 0;
-
-	for (uint16_t i=0; i<strlen(sentence); i++) {
-		checkSum ^= sentence[i];
-	}
-
-	return checkSum;
-}
-
-bool GrooveGps::sendCommand(char* com)
-{
-	SerialUSB.print("Sending command: ");
-	SerialUSB.println(com);
-
-	uint8_t checkSum = getCheckSum(com);
-	char checkSumSTR[3];
-	sprintf(checkSumSTR, "*%02X", checkSum);
-
-	for (uint16_t i=0; i<strlen(com); i++) {
-		SerialGrove.write(com[i]);
-		SerialUSB.write(com[i]);
-	}
-
-	SerialGrove.println(checkSumSTR);
-	SerialUSB.println(checkSumSTR);
 }
 
 

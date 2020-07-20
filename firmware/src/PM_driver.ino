@@ -274,17 +274,9 @@ void loop()
 		pmA.update();
 		pmB.update();
 		timer = millis();
-
-		// temp
-		groveGps.getReading();
 	}
 
 	if (groveGps.started) {
-		while (SerialGrove.available()) {
-			/* char c = SerialGrove.read(); */
-			groveGps.encode(SerialGrove.read());
-			/* groveGps.encode(c); */
-			/* SerialUSB.print(c); */
-		}
+		while (SerialGrove.available()) groveGps.encode(SerialGrove.read());
 	}
 }

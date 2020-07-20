@@ -250,6 +250,7 @@ bool GrooveGps::getReading()
 	}
 
 	bool timeValid = gps.time.isValid();
+	uint32_t epochTime = 0;
 	memcpy(&data[23], &timeValid, 1);
 	if (timeValid) {
 		// Time (epoch) -> uint32 - 4
@@ -264,7 +265,7 @@ bool GrooveGps::getReading()
 		tm.tm_min = gps.time.minute();
 		tm.tm_sec = gps.time.second();
 
-		uint32_t epochTime = mktime(&tm);
+		epochTime = mktime(&tm);
 		memcpy(&data[24], &epochTime, 4);
 	}
 

@@ -3,12 +3,16 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <pins.h>
+#include <time.h>
 
 // Libraries for DallasTemp
 #include <OneWire.h>
 #include <DallasTemperature.h>
 
-/* #define debug_PM */
+// Library for GPS data parsing
+#include "TinyGPS++.h"
+
+// #define debug_PM
 
 enum PMcommands {
 	START_PMA, 	  	// Start PM in slot A
@@ -19,7 +23,10 @@ enum PMcommands {
 	STOP_PMB, 		// Stop PM in slot B
 	DALLASTEMP_START,
 	DALLASTEMP_STOP,
-	GET_DALLASTEMP
+	GET_DALLASTEMP,
+	GROVEGPS_START,
+	GROVEGPS_STOP,
+	GROVEGPS_GET
 };
 
 static const uint8_t valuesSize = 18;
@@ -117,4 +124,43 @@ class Sck_DallasTemp {
 
 	private:
 		uint8_t _oneWireAddress[8];
+};
+
+class GrooveGps {
+	public:
+		bool start();
+		bool stop();
+		void encode(char c);
+		bool getReading();
+		
+		// Data (40 bytes)
+		// Fix Quality -> uint8 - 1
+		// 	0 = Invalid
+		// 	1 = GPS fix (SPS)
+		// 	2 = DGPS fix
+		// 	3 = PPS fix
+		// 	4 = Real Time Kinematic
+		// 	5 = Float RTK
+		// 	6 = estimated (dead reckoning) (2.3 feature)
+		// 	7 = Manual input mode
+		// 	8 = Simulation mode
+		// locationValid -> bool - 1
+		// Latitude DDD.DDDDDD (negative is south) -> double - 8
+		// Longitude DDD.DDDDDD (negative is west) -> double - 8
+		// altitudeValid -> bool - 1
+		// Altitude in meters -> float - 4
+		// timeValid -> bool - 1
+		// Time (epoch) -> uint32 - 4
+		// speedValid -> bool - 1
+		// Speed (meters per second) -> float - 4
+		// hdopValid -> bool - 1
+		// Horizontal dilution of position -> float - 4
+		// satellitesValid -> bool - 1
+		// Number of Satellites being traked -> uint8 - 1
+
+		static const uint8_t DATA_LEN = 40;
+		byte data[DATA_LEN];
+		bool started = false;
+
+	private:
 };

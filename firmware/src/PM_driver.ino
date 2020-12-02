@@ -27,6 +27,8 @@ volatile uint8_t wichCommand = GET_PMA;
 
 Sck_DallasTemp dallasTemp;
 
+GrooveGps groveGps;
+
 uint32_t timer = 0;
 
 void setup()
@@ -72,9 +74,12 @@ void setup()
 	pinMode(GPIO1, OUTPUT);
 
 	// Groove UART
-	SerialGrove.begin(115200);
+	SerialGrove.begin(9600);
 	pinPeripheral(RX0, PIO_SERCOM);
 	pinPeripheral(TX0, PIO_SERCOM);
+
+	// temp
+	groveGps.start();
 
 	Wire.begin(I2C_ADDRESS);
 	Wire.onReceive(receiveEvent);
@@ -136,6 +141,9 @@ void receiveEvent(int howMany)
 		case DALLASTEMP_START:
 		case DALLASTEMP_STOP:
 		case GET_DALLASTEMP:
+		case GROVEGPS_START:
+		case GROVEGPS_STOP:
+		case GROVEGPS_GET:
 		{
 				wichCommand = command;
 				break;
@@ -232,6 +240,24 @@ void requestEvent()
 			for (uint8_t i=0; i<4; i++) Wire.write(dallasTemp.uRead.b[i]);
 			break;
 	}
+	case GROVEGPS_START:
+	{
+			uint8_t result = groveGps.start();
+			Wire.write(result);
+			break;
+	}
+	case GROVEGPS_STOP:
+	{
+			uint8_t result = groveGps.stop();
+			Wire.write(result);
+			break;
+	}
+	case GROVEGPS_GET:
+	{
+			groveGps.getReading();
+			for (uint8_t i=0; i<groveGps.DATA_LEN; i++) Wire.write(groveGps.data[i]);
+			break;
+	}
 }
 }
 
@@ -241,5 +267,9 @@ void loop()
 		pmA.update();
 		pmB.update();
 		timer = millis();
+	}
+
+	if (groveGps.started) {
+		while (SerialGrove.available()) groveGps.encode(SerialGrove.read());
 	}
 }

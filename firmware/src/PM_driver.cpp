@@ -52,11 +52,13 @@ bool PMsensor::update()
 			SerialUSB.println("Timeout waiting for data!!");
 #endif
 
-			// After 10 seconds declare the PM innactive
-			if (millis() - lastReading < 10000) {
+			// After 30 seconds declare the PM innactive
+			if (millis() - lastReading > 30000 && lastReading != 0) {
 				active = false;
 #ifdef debug_PM
-				SerialUSB.println("No data received in 10 seconds setting PM as innactive");
+				if (_pinPOWER == 31) SerialUSB.print("PMA: ");
+				else SerialUSB.print("PMB: ");
+				SerialUSB.println("No data received in 30 seconds setting PM as innactive");
 #endif
 			}
 			return false;

@@ -189,16 +189,16 @@ void requestEvent()
 	case GET_PMA:
 	{
 #ifdef debug_PM
-			SerialUSB.println("PMB values requested....");
+			SerialUSB.println("PMA values requested....");
 #endif
 			if (pmA.active) {
 #ifdef debug_PM
-				SerialUSB.println("Sending PMB values...");
+				SerialUSB.println("Sending PMA values...");
 #endif
 				for (uint8_t i=0; i<valuesSize; i++) Wire.write(pmA.values[i]);
 			} else {
 #ifdef debug_PM
-				SerialUSB.println("PMB is not active, sending error code...");
+				SerialUSB.println("PMA is not active, sending error code...");
 #endif
 				for (uint8_t i=0; i<valuesSize; i++) Wire.write(255);
 			}

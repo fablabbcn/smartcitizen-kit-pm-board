@@ -7,8 +7,8 @@ const uint8_t pinBLUE 	= 13;		// PA17
 
 // PMS CONNECTOR A
 const uint8_t ENABLE_PMS_A = 2; 	// PA14
-const uint8_t RX_A = 3;				// PA9 - SERCOM2_ALT/PAD[1]
-const uint8_t TX_A = 4;				// PA8 - SERCOM2_ALT/PAD[0]
+const uint8_t RX_A = 3;			// PA9 - SERCOM2_ALT/PAD[1]
+const uint8_t TX_A = 4;			// PA8 - SERCOM2_ALT/PAD[0]
 const uint8_t RESET_PMS_A = 15;		// PB8
 const uint8_t PWM_PMS_A = 8; 		// PA6
 const uint8_t POWER_PMS_A = 31; 	// PB23

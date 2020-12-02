@@ -5,7 +5,7 @@ bool PMsensor::begin()
 	if (started) return true;
 
 	pinMode(_pinENABLE, OUTPUT);
-	digitalWrite(_pinENABLE, HIGH); 			// HIGH: Enable PMS
+	digitalWrite(_pinENABLE, HIGH); 	// HIGH: Enable PMS
 
 	pinMode(_pinPOWER, OUTPUT);
 	digitalWrite(_pinPOWER, HIGH); 		// HIGH: Turn on power to PMS
@@ -35,8 +35,9 @@ void PMsensor::reset()
 }
 bool PMsensor::update()
 {
+	if (!started) return false;
 	if (millis() - lastReading < 1000) return true; 	// PM sensor only delivers one reading per second
-	if (millis() - lastFail < 1000) return false; 		// We need at least one second after las fail
+	if (millis() - lastFail < 1000) return false; 		// We need at least one second after last fail
 
 	// Empty serial buffer
 	while(_pmSerial->available()) _pmSerial->read();

@@ -111,9 +111,6 @@ void receiveEvent(int howMany)
 					if (SerialPMA_A.available()) break;
 				}
 
-				while(SerialPMA_A.available()) SerialPMA_A.read();
-				while(SerialPMA_B.available()) SerialPMA_B.read();
-
 				wichCommand = command;
 				break;
 		}

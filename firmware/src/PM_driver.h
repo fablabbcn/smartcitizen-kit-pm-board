@@ -15,11 +15,12 @@
 // #define debug_PM
 
 enum PMcommands {
-	PM_START, 		// Start both PMS
-	GET_PMA, 		// Get values for PMS in slot A
-	GET_PMB, 		// Get values for PMS in slot A
-	GET_PM_AVG, 		// Get values for both PMS averaged
-	PM_STOP, 		// Stop both PMS
+	START_PMA, 	  	// Start PM in slot A
+	START_PMB,      	// Start PM in slot B
+	GET_PMA, 		// Get values for PM in slot A
+	GET_PMB, 		// Get values for PM in slot B
+	STOP_PMA, 		// Stop PM in slot A
+	STOP_PMB, 		// Stop PM in slot B
 	DALLASTEMP_START,
 	DALLASTEMP_STOP,
 	GET_DALLASTEMP,

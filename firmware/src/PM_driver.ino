@@ -98,17 +98,18 @@ void receiveEvent(int howMany)
 
 	switch(command) {
 
-		case PM_START:
+		case START_PMA:
 		{
 				SerialPMA_A.begin(9600);
 				pinPeripheral(RX_A, PIO_SERCOM_ALT);	// PMA_A serial port
 				pinPeripheral(TX_A, PIO_SERCOM_ALT);	// PMA_A serial port
 				pmA.begin();
-				delay(1000);
 
-				SerialPMA_B.begin(9600);
-				pmB.begin();
-				delay(3000);
+				// Wait for PM response or timeout
+				uint32_t now = millis();
+				while (millis() - now < 5000) {
+					if (SerialPMA_A.available()) break;
+				}
 
 				while(SerialPMA_A.available()) SerialPMA_A.read();
 				while(SerialPMA_B.available()) SerialPMA_B.read();
@@ -116,13 +117,28 @@ void receiveEvent(int howMany)
 				wichCommand = command;
 				break;
 		}
-		case PM_STOP:
+		case START_PMB:
 		{
-				pmA.stop();
-				pmB.stop();
+				SerialPMA_B.begin(9600);
+				pmB.begin();
+
+				// Wait for PM response or timeout
+				uint32_t now = millis();
+				while (millis() - now < 5000) {
+					if (SerialPMA_B.available()) break;
+				}
+				
+				wichCommand = command;
 				break;
 		}
-		case GET_PM_AVG:
+		case STOP_PMA: { 
+			pmA.stop();
+			break;
+		}
+		case STOP_PMB: { 
+			pmB.stop();
+			break;
+		}
 		case GET_PMA:
 		case GET_PMB:
 		case DALLASTEMP_START:
@@ -143,18 +159,32 @@ void requestEvent()
 {
 	switch (wichCommand)
 {
-	case PM_START:
+	case START_PMA:
 	{
 #ifdef debug_PM
-			SerialUSB.println("Starting PM sensor...");
+			SerialUSB.println("Starting PMA sensor...");
 #endif
-			if (SerialPMA_A.available() || SerialPMA_B.available()) Wire.write(1);
+			if (SerialPMA_A.available()) Wire.write(1);
 			else {
 #ifdef debug_PM
-			SerialUSB.println("ERROR Starting PM sensor!!!");
+			SerialUSB.println("ERROR Starting PMA sensor!!!");
 #endif
 				Wire.write(0);
 				pmA.stop();
+			}
+			break;
+	}
+	case START_PMB:
+	{
+#ifdef debug_PM
+			SerialUSB.println("Starting PMB sensor...");
+#endif
+			if (SerialPMA_B.available()) Wire.write(1);
+			else {
+#ifdef debug_PM
+			SerialUSB.println("ERROR Starting PMB sensor!!!");
+#endif
+				Wire.write(0);
 				pmB.stop();
 			}
 			break;
@@ -162,71 +192,37 @@ void requestEvent()
 	case GET_PMA:
 	{
 #ifdef debug_PM
-			SerialUSB.println("Sending PMA values...");
+			SerialUSB.println("PMB values requested....");
 #endif
-			if (pmA.active) for (uint8_t i=0; i<valuesSize; i++) Wire.write(pmA.values[i]);
-			else for (uint8_t i=0; i<valuesSize; i++) Wire.write(255);
+			if (pmA.active) {
+#ifdef debug_PM
+				SerialUSB.println("Sending PMB values...");
+#endif
+				for (uint8_t i=0; i<valuesSize; i++) Wire.write(pmA.values[i]);
+			} else {
+#ifdef debug_PM
+				SerialUSB.println("PMB is not active, sending error code...");
+#endif
+				for (uint8_t i=0; i<valuesSize; i++) Wire.write(255);
+			}
 			break;
 	}
 	case GET_PMB:
 	{
 #ifdef debug_PM
-			SerialUSB.println("Sending PMB values...");
+			SerialUSB.println("PMB values requested....");
 #endif
-			if (pmB.active) for (uint8_t i=0; i<valuesSize; i++) Wire.write(pmB.values[i]);
-			else for (uint8_t i=0; i<valuesSize; i++) Wire.write(255);
-			break;
-	}
-	case GET_PM_AVG:
-	{
+			if (pmB.active) {
 #ifdef debug_PM
-			SerialUSB.println("Sending average values...");
+				SerialUSB.println("Sending PMB values...");
 #endif
-			uint8_t toSendValues[valuesSize];
-
-			// Average both readings
-	if (pmA.active && pmB.active) {
-
-				uint16_t bothPm1 = (pmA.pm1 + pmB.pm1) / 2;
-				uint16_t bothPm25 = (pmA.pm25 + pmB.pm25) / 2;
-				uint16_t bothPm10 = (pmA.pm10 + pmB.pm10) / 2;
-				uint16_t bothPn03 = (pmA.pn03 + pmB.pn03) / 2;
-				uint16_t bothPn05 = (pmA.pn05 + pmB.pn05) / 2;
-				uint16_t bothPn1 = (pmA.pn1 + pmB.pn1) / 2;
-				uint16_t bothPn25 = (pmA.pn25 + pmB.pn25) / 2;
-				uint16_t bothPn5 = (pmA.pn5 + pmB.pn5) / 2;
-				uint16_t bothPn10 = (pmA.pn10 + pmB.pn10) / 2;
-
-				toSendValues[0] = bothPm1 >> 8;
-				toSendValues[1] = bothPm1 & 0x00FF;
-				toSendValues[2] = bothPm25 >> 8;
-				toSendValues[3] = bothPm25 & 0x00FF;
-				toSendValues[4] = bothPm10 >> 8;
-				toSendValues[5] = bothPm10 & 0x00FF;
-				toSendValues[6] = bothPn03 >> 8;
-				toSendValues[7] = bothPn03 & 0x00FF;
-				toSendValues[8] = bothPn05 >> 8;
-				toSendValues[9] = bothPn05 & 0x00FF;
-				toSendValues[10] = bothPn1 >> 8;
-				toSendValues[11] = bothPn1 & 0x00FF;
-				toSendValues[12] = bothPn25 >> 8;
-				toSendValues[13] = bothPn25 & 0x00FF;
-				toSendValues[14] = bothPn5 >> 8;
-				toSendValues[15] = bothPn5 & 0x00FF;
-				toSendValues[16] = bothPn10 >> 8;
-				toSendValues[17] = bothPn10 & 0x00FF;
-
-				for (uint8_t i=0; i<valuesSize; i++) {
-					Wire.write(toSendValues[i]);
-				}
-
-			// Otherwise send only the active one	
-			} else if (pmA.active) for (uint8_t i=0; i<valuesSize; i++) Wire.write(pmA.values[i]);
-			else if (pmB.active) for (uint8_t i=0; i<valuesSize; i++) Wire.write(pmB.values[i]);
-
-			// Or send 255 as ERROR code
-			else for (uint8_t i=0; i<valuesSize; i++) Wire.write(255);
-
+				for (uint8_t i=0; i<valuesSize; i++) Wire.write(pmB.values[i]);
+			} else {
+#ifdef debug_PM
+				SerialUSB.println("PMB is not active, sending error code...");
+#endif
+				for (uint8_t i=0; i<valuesSize; i++) Wire.write(255);
+			}
 			break;
 	}
 	case DALLASTEMP_START:

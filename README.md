@@ -35,7 +35,7 @@ After clonning the repository:
 
 ## Documentation
 
-Check the [Smart Citizen documentation](https://docs.smartcitizen.me/Components/PM%20Board/)
+Check the [Smart Citizen documentation](https://docs.smartcitizen.me/Components/boards/PM%20Board/)
 
 ## Questions and comments
 
@@ -43,9 +43,11 @@ Check the [forum](https://forum.smartcitizen.me/)
 
 ## Related Smart Citizen repositories
 
+* Smart Citizen Kit 2.1 [github.com/fablabbcn/smartcitizen-kit-21](https://github.com/fablabbcn/smartcitizen-kit-21)
 * Smart Citizen Kit 2.0 [github.com/fablabbcn/smartcitizen-kit-20](https://github.com/fablabbcn/smartcitizen-kit-20)
 * Platform Core API [github.com/fablabbcn/smartcitizen-api](https://github.com/fablabbcn/smartcitizen-api)
 * Platform Web [github.com/fablabbcn/smartcitizen-web](https://github.com/fablabbcn/smartcitizen-web)
+* Data Analysis [github.com/fablabbcn/smartcitizen-data](https://github.com/fablabbcn/smartcitizen-data)
 * Platform Onboarding [github.com/fablabbcn/smartcitizen-onboarding-app](https://github.com/fablabbcn/smartcitizen-onboarding-app)
 * Kit Enclosures [github.com/fablabbcn/smartcitizen-enclosures](https://github.com/fablabbcn/smartcitizen-enclosures)
 * Useful software resources for communities [github.com/fablabbcn/smartcitizen-toolkit](https://github.com/fablabbcn/smartcitizen-toolkit)
@@ -56,7 +58,7 @@ All the software unless stated is released under [GNU GPL v3.0](https://github.c
 
 ## Credits
 
-Smart Citizen Team 2012-18
+Smart Citizen Team 2012-ONWARDS
 
 ## Funding
 
